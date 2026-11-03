@@ -70,7 +70,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.config/godot" "$HOME/.android"
-          ANDROID_SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}" 
+          ANDROID_SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
           test -n "$ANDROID_SDK_DIR"
           keytool -genkeypair -v \
             -keystore "$HOME/.android/debug.keystore" \
@@ -90,40 +90,32 @@ jobs:
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_password = "android"
           EOF
-          cat "$HOME/.config/godot/editor_settings-4.tres"
-
-          # Make the Android export preset explicitly use the generated debug keystore.
           python3 - <<'PYCONFIG'
           from pathlib import Path
-          import os
           path = Path("export_presets.cfg")
           text = path.read_text()
-          text = text.replace('package/signed=false', 'package/signed=true')
           values = {
-              'keystore/debug': os.path.join(os.environ['HOME'], '.android', 'debug.keystore'),
-              'keystore/debug_user': 'androiddebugkey',
-              'keystore/debug_password': 'android',
+              "package/signed": "true",
+              "keystore/debug": str(Path.home() / ".android" / "debug.keystore"),
+              "keystore/debug_user": "androiddebugkey",
+              "keystore/debug_password": "android",
           }
           lines = text.splitlines()
           for key, value in values.items():
-              prefix = key + '='
-              replacement = f'{key}="{value}"'
+              prefix = key + "="
+              replacement = f'{key}="{value}"' if key.startswith("keystore/") else f"{key}={value}"
               found = False
-              for i, line in enumerate(lines):
+              for index, line in enumerate(lines):
                   if line.startswith(prefix):
-                      lines[i] = replacement
+                      lines[index] = replacement
                       found = True
               if not found:
-                  insert_at = next(i for i, line in enumerate(lines) if line.strip() == '[preset.0.options]') + 1
-                  lines.insert(insert_at, replacement)
-          if 'package/signed=true' not in lines:
-              lines.append('package/signed=true')
-          path.write_text('
-'.join(lines) + '
-')
-          print('
-'.join(line for line in lines if line.startswith(('package/signed=', 'keystore/debug'))))
+                  raise SystemExit(f"Required Android export option missing: {key}")
+          path.write_text("\n".join(lines) + "\n")
+          print("Android signing options configured:")
+          print("\n".join(line for line in lines if line.startswith(("package/signed=", "keystore/debug"))))
           PYCONFIG
+          test -s "$HOME/.android/debug.keystore"
 
       - name: Import and validate JU project
         shell: bash
@@ -141,9 +133,8 @@ jobs:
           set -euo pipefail
           GODOT_BIN="$(cat "$RUNNER_TEMP/godot-bin-path")"
           mkdir -p build
-          "$GODOT_BIN" --headless --path . --export-debug "Android" build/JU.apk
+          "$GODOT_BIN" --headless --verbose --path . --export-debug "Android" build/JU.apk
           test -s build/JU.apk
-          # Fail the build if the produced APK is unsigned or has an invalid signature.
           APKSIGNER="${ANDROID_HOME:-${ANDROID_SDK_ROOT}}/build-tools/34.0.0/apksigner"
           test -x "$APKSIGNER"
           "$APKSIGNER" verify --verbose --print-certs build/JU.apk
