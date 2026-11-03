@@ -30,3 +30,15 @@
 ## دانلود APK از GitHub Actions
 پس از اجرای موفق گردش‌کار، وارد Actions شوید، اجرای سبزرنگ را باز کنید و در پایین صفحه بخش Artifacts، فایل `JU-Android-APK` را دانلود کنید. فایل ZIP آرتیفکت حاوی `JU.apk` است.
 اگر خروجی در مرحله Export متوقف شد، متن خطای همان مرحله را بررسی کنید؛ محیط CI باید قالب‌های Export اندروید و ابزارهای Android لازم را داشته باشد.
+
+
+## اصلاح خروجی اندروید
+گردش‌کار GitHub Actions اکنون Java 17، Android SDK packages، قالب‌های Export اندروید Godot 4.3 و Debug Keystore موقت را آماده می‌کند. بعد از بیلد موفق، فایل `JU-Android-APK` در بخش Artifacts قابل دانلود است. این گردش‌کار هنوز باید در GitHub اجرا شود تا خروجی واقعی تأیید شود.
+
+
+## ساخت APK در GitHub Actions
+گردش‌کار `.github/workflows/android.yml` نسخهٔ دقیق Godot 4.3، قالب‌های خروجی Android، Java 17، ابزارهای Android SDK و debug keystore را آماده می‌کند. پس از اجرای موفق، فایل `JU-Android-APK` را از بخش Artifacts همان اجرای Actions دریافت کنید.
+
+
+## رفع خطای Export اندروید
+در گردش‌کار GitHub، قالب‌های Export دقیقاً برای نسخه Godot 4.3 نصب می‌شوند؛ Java 17، Android SDK و debug keystore نیز تنظیم می‌شوند. تنظیمات Editor در مسیر استاندارد Godot 4 یعنی `~/.config/godot/editor_settings-4.tres` نوشته می‌شود تا مسیر Java/SDK و keystore شناسایی شود.
