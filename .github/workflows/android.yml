@@ -24,6 +24,9 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The action defaults to the obsolete SDK package "tools"; install only platform-tools here.
+          packages: platform-tools
 
       - name: Install Android SDK packages
         shell: bash
@@ -87,7 +90,7 @@ jobs:
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_password = "android"
           EOF
-          cat "$HOME/.config/godot/editor_settings-4.3.tres"
+          cat "$HOME/.config/godot/editor_settings-4.tres"
 
       - name: Import and validate JU project
         shell: bash
