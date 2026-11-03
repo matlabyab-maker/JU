@@ -1,0 +1,36 @@
+name: Android Build
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-godot-project:
+    name: Validate JU Godot project
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required project files
+        shell: bash
+        run: |
+          set -e
+          test -f project.godot
+          test -f main.tscn
+          test -f scripts/world.gd
+          test -f scripts/plane_controller.gd
+          echo "JU project files found."
+
+      - name: Import and parse project
+        shell: bash
+        run: |
+          set -e
+          godot --headless --editor --path . --quit
+          echo "Godot headless project import completed."
