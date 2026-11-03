@@ -72,21 +72,21 @@ jobs:
           mkdir -p "$HOME/.config/godot" "$HOME/.android"
           ANDROID_SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
           test -n "$ANDROID_SDK_DIR"
-          keytool -genkeypair -v \\
-            -keystore "$HOME/.android/debug.keystore" \\
-            -storepass android \\
-            -alias androiddebugkey \\
-            -keypass android \\
-            -dname "CN=Android Debug,O=Android,C=US" \\
-            -keyalg RSA -keysize 2048 -validity 10000 \\
+          keytool -genkeypair -v \
+            -keystore "$HOME/.android/debug.keystore" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -keyalg RSA -keysize 2048 -validity 10000 \
             -noprompt
-          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
-          [gd_resource type="EditorSettings" format=3]
-
-          [resource]
-          export/android/android_sdk_path = "$ANDROID_SDK_DIR"
-          export/android/java_sdk_path = "$JAVA_HOME"
-          EOF
+          printf '%s\n' \
+            '[gd_resource type="EditorSettings" format=3]' \
+            '' \
+            '[resource]' \
+            "export/android/android_sdk_path = \"$ANDROID_SDK_DIR\"" \
+            "export/android/java_sdk_path = \"$JAVA_HOME\"" \
+            > "$HOME/.config/godot/editor_settings-4.tres"
           test -s "$HOME/.android/debug.keystore"
 
       - name: Import and validate JU project
@@ -108,14 +108,14 @@ jobs:
           # Export without Godot-managed signing; sign the APK with Android SDK tools afterward.
           "$GODOT_BIN" --headless --verbose --path . --export-debug "Android" build/JU-unsigned.apk
           test -s build/JU-unsigned.apk
-          APKSIGNER="${ANDROID_HOME:-${ANDROID_SDK_ROOT}}/build-tools/34.0.0/apksigner"
+          APKSIGNER="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}/build-tools/34.0.0/apksigner"
           test -x "$APKSIGNER"
-          "$APKSIGNER" sign \\
-            --ks "$HOME/.android/debug.keystore" \\
-            --ks-key-alias androiddebugkey \\
-            --ks-pass pass:android \\
-            --key-pass pass:android \\
-            --out build/JU.apk \\
+          "$APKSIGNER" sign \
+            --ks "$HOME/.android/debug.keystore" \
+            --ks-key-alias androiddebugkey \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --out build/JU.apk \
             build/JU-unsigned.apk
           test -s build/JU.apk
           "$APKSIGNER" verify --verbose --print-certs build/JU.apk
