@@ -82,15 +82,15 @@ func _make_terrain() -> void:
     add_child(body)
 
 func _height(x: float, z: float) -> float:
-    var ridge1: float = absf(sin(x * 0.006 + sin(z * 0.004) * 1.8))
-    var ridge2: float = absf(sin(z * 0.008 + x * 0.002))
-    var peaks: float = pow(ridge1, 5.0) * 100.0 + pow(ridge2, 7.0) * 95.0
-    var base_h: float = 7.0 * sin(x * 0.018) * cos(z * 0.016)
+    var ridge1 := abs(sin(x * 0.006 + sin(z * 0.004) * 1.8))
+    var ridge2 := abs(sin(z * 0.008 + x * 0.002))
+    var peaks := pow(ridge1, 5.0) * 100.0 + pow(ridge2, 7.0) * 95.0
+    var base_h := 7.0 * sin(x * 0.018) * cos(z * 0.016)
     return max(-2.0, peaks + base_h - 5.0)
 
 func _add_terrain_tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> void:
     for v in [a, b, c]:
-        var shade: float = clampf((v.y + 3.0) / 100.0, 0.0, 1.0)
+        var shade := clamp((v.y + 3.0) / 100.0, 0.0, 1.0)
         var col := Color(0.78, 0.84, 0.88).lerp(Color(0.96, 0.98, 1.0), shade)
         if v.y > 70.0:
             col = Color(0.94, 0.97, 1.0)

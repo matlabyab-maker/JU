@@ -39,6 +39,8 @@ jobs:
             "platforms;android-34" \
             "build-tools;33.0.2" \
             "build-tools;34.0.0"
+          adb start-server
+          adb version
 
       - name: Install Godot 4.3 and Android export templates
         shell: bash
@@ -88,7 +90,7 @@ jobs:
           export/android/java_sdk_path = "$JAVA_HOME"
           export/android/debug_keystore = "$HOME/.android/debug.keystore"
           export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_password = "android"
+          export/android/debug_keystore_pass = "android"
           EOF
           cat "$HOME/.config/godot/editor_settings-4.tres"
 
@@ -108,7 +110,7 @@ jobs:
           set -euo pipefail
           GODOT_BIN="$(cat "$RUNNER_TEMP/godot-bin-path")"
           mkdir -p build
-          "$GODOT_BIN" --headless --path . --export-debug "Android" build/JU.apk
+          "$GODOT_BIN" --headless --verbose --path . --export-debug "Android" build/JU.apk
           test -s build/JU.apk
           ls -lh build/JU.apk
 
